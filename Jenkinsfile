@@ -1,44 +1,42 @@
 pipeline {
     agent any
-    
     stages {
+        // Stage 1: Clone repository
+        stage('Clone repository') {
+            steps {
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[url: 'https://github.com/Jah1008/PES1UG21CS346_Jenkins.git']]
+                ])
+            }
+        }
+
+        // Stage 2: Build
         stage('Build') {
             steps {
-                script {
-                    // Compile the hello2.cpp file
-                    sh 'g++ -o hello2_executable hello2.cpp'
-                    echo 'Build Stage Successful'
-                }
+                build 'PES1UG21CS346-1'
+                sh 'g++ main.cpp -o output'
             }
         }
-        
+
+        // Stage 3: Test
         stage('Test') {
             steps {
-                script {
-                    // Execute the compiled executable and print its output
-                    sh './hello2_executable'
-                    echo 'Test Stage Successful'
-                }
-                post {
-                    always {
-                        // In C++ there's no direct equivalent of junit reports, so we just echo a message
-                        echo 'No test reports available for C++ files'
-                    }
-                }
+                sh './output'
             }
         }
-        
+
+        // Stage 4: Deploy
         stage('Deploy') {
             steps {
-              
-                echo 'Deployment Successful'
+                echo 'deploy'
             }
         }
     }
-    
     post {
         failure {
-            echo 'Pipeline failed'
+            error 'Pipeline failed'
         }
     }
 }
